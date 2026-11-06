@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Expense Tracker | Track what you spend</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+    <header class="landing-header">
+        <a href="index.html" class="auth-brand">
+            <span class="auth-brand-mark">ET</span>Expense Tracker
+        </a>
+    </header>
+
+    <main>
+        <section class="landing-hero">
+            <h1>Know where your money goes</h1>
+            <p>Record what you spend, organise it by category and see your totals in one place.</p>
+
+            <div class="landing-actions">
+                <button type="button" id="auth-btn" class="primary-btn">Log in / Sign up</button>
+            </div>
+
+            <p id="landing-error" class="error-message hidden" role="alert"></p>
+        </section>
+    </main>
+
+    <footer class="landing-footer">
+        <p>Expense Tracker &middot; AltSchool Africa Cloud Engineering project</p>
+    </footer>
+
+    <script src="js/config.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        (function () {
+            "use strict";
+
+            var button = document.getElementById("auth-btn");
+            var errorBox = document.getElementById("landing-error");
+
+            // Already signed in: send the user straight to the app
+            if (Auth.isAuthenticated()) {
+                button.textContent = "Go to dashboard";
+                button.addEventListener("click", function () {
+                    window.location.href = Auth.pages.DASHBOARD;
+                });
+                return;
+            }
+
+            // Not signed in: go to the Cognito Hosted UI
+            button.addEventListener("click", async function () {
+                errorBox.classList.add("hidden");
+
+                if (!Auth.isConfigured()) {
+                    errorBox.textContent = "Cognito is not configured yet. Update js/config.js.";
+                    errorBox.classList.remove("hidden");
+                    return;
+                }
+
+                button.disabled = true;
+                button.textContent = "Redirecting...";
+
+                try {
+                    await Auth.redirectToLogin();
+                } catch (error) {
+                    button.disabled = false;
+                    button.textContent = "Log in / Sign up";
+                    errorBox.textContent = error.message || "Could not start sign-in. Please try again.";
+                    errorBox.classList.remove("hidden");
+                }
+            });
+        })();
+    </script>
+</body>
+</html>
